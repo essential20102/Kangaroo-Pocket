@@ -1,0 +1,10 @@
+{
+  "name": "Kangaroo Pocket",
+  "short_name": "Pocket",
+  "description": "필요한 순간 다시 꺼내 쓰는 나만의 포켓",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f4ff",
+  "theme_color": "#f5f4ff",
+  "icons": []
+}
