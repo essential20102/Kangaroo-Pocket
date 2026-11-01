@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Archive, Bookmark, Check, Clipboard, Copy, FileImage, Link2, Plus, Search, Sparkles, Trash2, X } from 'lucide-react';
+import { Archive, Bookmark, Check, Clipboard, Copy, Link2, Moon, Plus, Search, Sparkles, Sun, Trash2 } from 'lucide-react';
 
 type Clip = {
   id: string;
@@ -11,7 +11,9 @@ type Clip = {
   createdAt: number;
 };
 
+type Theme = 'light' | 'dark';
 const STORAGE_KEY = 'kangaroo-pocket-clips-v1';
+const THEME_KEY = 'kangaroo-pocket-theme-v1';
 
 function detectKind(value: string): 'text' | 'link' {
   try {
@@ -27,12 +29,15 @@ export default function Home() {
   const [filter, setFilter] = useState<'all' | 'pinned'>('all');
   const [ready, setReady] = useState(false);
   const [notice, setNotice] = useState('');
+  const [theme, setTheme] = useState<Theme>('light');
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) setClips(JSON.parse(saved) as Clip[]);
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme === 'light' || savedTheme === 'dark') setTheme(savedTheme);
     } catch { /* ignore invalid local data */ }
     setReady(true);
   }, []);
@@ -40,6 +45,12 @@ export default function Home() {
   useEffect(() => {
     if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(clips));
   }, [clips, ready]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(THEME_KEY, theme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#171624' : '#f5f4ff');
+  }, [theme]);
 
   const visible = useMemo(() => clips
     .filter(c => filter === 'all' || c.pinned)
@@ -80,7 +91,15 @@ export default function Home() {
           <span className="brandIcon"><Archive size={21} /></span>
           <span>Kangaroo <b>Pocket</b></span>
         </a>
-        <span className="sync"><span className="syncDot" /> 이 기기에 저장 중</span>
+        <div className="topbarRight">
+          <button className="themeToggle" onClick={() => setTheme(current => current === 'light' ? 'dark' : 'light')}
+            aria-label={theme === 'light' ? '다크 모드로 전환' : '라이트 모드로 전환'}
+            title={theme === 'light' ? '다크 모드' : '라이트 모드'}>
+            {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
+            <span>{theme === 'light' ? '다크 모드' : '라이트 모드'}</span>
+          </button>
+          <span className="sync"><span className="syncDot" /> 이 기기에 저장 중</span>
+        </div>
       </header>
 
       <section className="hero">
